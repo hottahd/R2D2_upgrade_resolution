@@ -1,4 +1,4 @@
-&info
+ &info
 caseid     = "d025"  ! origin caseid
 caseid_out = "d027"  ! destination caseid
 c_nd_read = "end_step"
