@@ -40,7 +40,7 @@ program main
 	real(KIND(0.d0)) :: rtmp
 	logical :: ltmp
 	character*20 :: server_name
-	character*11 :: change
+	character*11 :: change_char
 
 	
 	namelist /info/caseid,caseid_out,c_nd_read,ix0,jx0,kx0
@@ -335,11 +335,12 @@ program main
 
 	upgd%qq = 0.d0
 
+        !$omp parallel do private(i,j,k,m)
 	do k = kmin,kmax
 	do j = jmin,jmax
 	do i = imin,imax
 	do m = 1,orgl%mtype
-       upgd%qq(i,j,k,m) = ( &
+           upgd%qq(i,j,k,m) = ( &
           & + orgl%qq(iloc(i)+0,jloc(j)+0,kloc(k)+0,m)*dz1(k)*dy1(j)*dx1(i) &
           & + orgl%qq(iloc(i)+0,jloc(j)+0,kloc(k)+1,m)*dz0(k)*dy1(j)*dx1(i) &
           & + orgl%qq(iloc(i)+0,jloc(j)+1,kloc(k)+0,m)*dz1(k)*dy0(j)*dx1(i) &
@@ -399,91 +400,91 @@ program main
 		write(idf,'(A)') 'Server: '//trim(server_name)
 		write(idf,'(A)') 'Datadir: ../run/'//caseid//'/data'
 		write(idf,'(A,i6)') 'Output step: ',nd
-		call change_judge(orgl%xmin,upgd%xmin,change)		
-		write(idf,'(A,SP,ES10.3,A,SS,F5.3,A)') 'xmin = rsun',orgl%xmin-rstar,' or ',orgl%xmin/rstar,'rsun '//trim(change)
-		call change_judge(orgl%xmax,upgd%xmax,change)
-		write(idf,'(A,SP,ES10.3,A,SS,F5.3,A)') 'xmax = rsun',orgl%xmax-rstar,' or ',orgl%xmax/rstar,'rsun '//trim(change)
+		call change_judge(orgl%xmin,upgd%xmin,change_char)
+		write(idf,'(A,SP,ES10.3,A,SS,F5.3,A)') 'xmin = rsun',orgl%xmin-rstar,' or ',orgl%xmin/rstar,'rsun '//trim(change_char)
+		call change_judge(orgl%xmax,upgd%xmax,change_char)
+		write(idf,'(A,SP,ES10.3,A,SS,F5.3,A)') 'xmax = rsun',orgl%xmax-rstar,' or ',orgl%xmax/rstar,'rsun '//trim(change_char)
 		if (trim(geometry_char) == 'Spherical' .or. trim(geometry_char) == 'YinYang') then
-			call change_judge(orgl%ymin,upgd%ymin,change)
-			write(idf,'(A,F6.2,A)') 'ymin = ',orgl%ymin/pi*180.d0,' [rad] '//trim(change)
-			call change_judge(orgl%ymax,upgd%ymax,change)
-			write(idf,'(A,F6.2,A)') 'ymax = ',orgl%ymax/pi*180.d0,' [rad] '//trim(change)
-			call change_judge(orgl%zmin,upgd%zmin,change)
-			write(idf,'(A,F6.2,A)') 'zmin = ',orgl%zmin/pi*180.d0,' [rad] '//trim(change)
-			call change_judge(orgl%zmax,upgd%zmax,change)
-			write(idf,'(A,F6.2,A)') 'zmax = ',orgl%zmax/pi*180.d0,' [rad] '//trim(change)
+			call change_judge(orgl%ymin,upgd%ymin,change_char)
+			write(idf,'(A,F6.2,A)') 'ymin = ',orgl%ymin/pi*180.d0,' [rad] '//trim(change_char)
+			call change_judge(orgl%ymax,upgd%ymax,change_char)
+			write(idf,'(A,F6.2,A)') 'ymax = ',orgl%ymax/pi*180.d0,' [rad] '//trim(change_char)
+			call change_judge(orgl%zmin,upgd%zmin,change_char)
+			write(idf,'(A,F6.2,A)') 'zmin = ',orgl%zmin/pi*180.d0,' [rad] '//trim(change_char)
+			call change_judge(orgl%zmax,upgd%zmax,change_char)
+			write(idf,'(A,F6.2,A)') 'zmax = ',orgl%zmax/pi*180.d0,' [rad] '//trim(change_char)
 		else
-			call change_judge(orgl%ymin,upgd%ymin,change)
-			write(idf,'(A,ES10.3,A)') 'ymin = ',orgl%ymin,' [cm] '//trim(change)
-			call change_judge(orgl%ymax,upgd%ymax,change)
-			write(idf,'(A,ES10.3,A)') 'ymax = ',orgl%ymax,' [cm] '//trim(change)
-			call change_judge(orgl%zmin,upgd%zmin,change)
-			write(idf,'(A,ES10.3,A)') 'zmin = ',orgl%zmin,' [cm] '//trim(change)
-			call change_judge(orgl%zmax,upgd%zmax,change)
-			write(idf,'(A,ES10.3,A)') 'zmax = ',orgl%zmax,' [cm] '//trim(change)
+			call change_judge(orgl%ymin,upgd%ymin,change_char)
+			write(idf,'(A,ES10.3,A)') 'ymin = ',orgl%ymin,' [cm] '//trim(change_char)
+			call change_judge(orgl%ymax,upgd%ymax,change_char)
+			write(idf,'(A,ES10.3,A)') 'ymax = ',orgl%ymax,' [cm] '//trim(change_char)
+			call change_judge(orgl%zmin,upgd%zmin,change_char)
+			write(idf,'(A,ES10.3,A)') 'zmin = ',orgl%zmin,' [cm] '//trim(change_char)
+			call change_judge(orgl%zmax,upgd%zmax,change_char)
+			write(idf,'(A,ES10.3,A)') 'zmax = ',orgl%zmax,' [cm] '//trim(change_char)
 		endif
 
-		call change_judge(orgl%ix00,upgd%ix00,change)
-		write(idf,'(A,I0,A)') 'nx0*ix0 = ',orgl%ix00 - 2*orgl%margin,trim(change)
-		call change_judge(orgl%jx00,upgd%jx00,change)
-		write(idf,'(A,I0,A)') 'ny0*jx0 = ',orgl%jx00 - 2*orgl%margin,trim(change)
-		call change_judge(orgl%kx00,upgd%kx00,change)
-		write(idf,'(A,I0,A)') 'nz0*kx0 = ',orgl%kx00 - 2*orgl%margin,trim(change)
+		call change_judge(orgl%ix00,upgd%ix00,change_char)
+		write(idf,'(A,I0,A)') 'nx0*ix0 = ',orgl%ix00 - 2*orgl%margin,trim(change_char)
+		call change_judge(orgl%jx00,upgd%jx00,change_char)
+		write(idf,'(A,I0,A)') 'ny0*jx0 = ',orgl%jx00 - 2*orgl%margin,trim(change_char)
+		call change_judge(orgl%kx00,upgd%kx00,change_char)
+		write(idf,'(A,I0,A)') 'nz0*kx0 = ',orgl%kx00 - 2*orgl%margin,trim(change_char)
 
-		call change_judge(orgl%ununiform_flag,upgd%ununiform_flag,change)
+		call change_judge(orgl%ununiform_flag,upgd%ununiform_flag,change_char)
 		if(orgl%ununiform_flag) then
-			write(idf,'(A)') 'ununiform_flag = .true.'//trim(change)
+			write(idf,'(A)') 'ununiform_flag = .true.'//trim(change_char)
 		else
-			write(idf,'(A)') 'ununiform_flag = .false.'//trim(change)
+			write(idf,'(A)') 'ununiform_flag = .false.'//trim(change_char)
 		endif
-		call change_judge(orgl%ix_ununi,upgd%ix_ununi,change)
-		write(idf,'(A,I0,A)') 'ix_ununi = ',orgl%ix_ununi,trim(change)
-		call change_judge(orgl%dx00,upgd%dx00,change)
-		write(idf,'(A,ES10.3,A)') 'dx00 = ',orgl%dx00,trim(change)
+		call change_judge(orgl%ix_ununi,upgd%ix_ununi,change_char)
+		write(idf,'(A,I0,A)') 'ix_ununi = ',orgl%ix_ununi,trim(change_char)
+		call change_judge(orgl%dx00,upgd%dx00,change_char)
+		write(idf,'(A,ES10.3,A)') 'dx00 = ',orgl%dx00,trim(change_char)
 		write(idf,*)
 		write(idf,'(A)') '### Upgraded data ###'
 		write(idf,*)
-		call change_judge(orgl%xmin,upgd%xmin,change)		
-		write(idf,'(A,SP,ES10.3,A,SS,F5.3,A)') 'xmin = rsun',upgd%xmin-rstar,' or ',upgd%xmin/rstar,'rsun '//trim(change)
-		call change_judge(orgl%xmax,upgd%xmax,change)
-		write(idf,'(A,SP,ES10.3,A,SS,F5.3,A)') 'xmax = rsun',upgd%xmax-rstar,' or ',upgd%xmax/rstar,'rsun '//trim(change)
+		call change_judge(orgl%xmin,upgd%xmin,change_char)
+		write(idf,'(A,SP,ES10.3,A,SS,F5.3,A)') 'xmin = rsun',upgd%xmin-rstar,' or ',upgd%xmin/rstar,'rsun '//trim(change_char)
+		call change_judge(orgl%xmax,upgd%xmax,change_char)
+		write(idf,'(A,SP,ES10.3,A,SS,F5.3,A)') 'xmax = rsun',upgd%xmax-rstar,' or ',upgd%xmax/rstar,'rsun '//trim(change_char)
 		if (trim(geometry_char) == 'Spherical' .or. trim(geometry_char) == 'YinYang') then
-			call change_judge(orgl%ymin,upgd%ymin,change)
-			write(idf,'(A,F6.2,A)') 'ymin = ',upgd%ymin/pi*180.d0,' [rad] '//trim(change)
-			call change_judge(orgl%ymax,upgd%ymax,change)
-			write(idf,'(A,F6.2,A)') 'ymax = ',upgd%ymax/pi*180.d0,' [rad] '//trim(change)
-			call change_judge(orgl%zmin,upgd%zmin,change)
-			write(idf,'(A,F6.2,A)') 'zmin = ',upgd%zmin/pi*180.d0,' [rad] '//trim(change)
-			call change_judge(orgl%zmax,upgd%zmax,change)
-			write(idf,'(A,F6.2,A)') 'zmax = ',upgd%zmax/pi*180.d0,' [rad] '//trim(change)
+			call change_judge(orgl%ymin,upgd%ymin,change_char)
+			write(idf,'(A,F6.2,A)') 'ymin = ',upgd%ymin/pi*180.d0,' [rad] '//trim(change_char)
+			call change_judge(orgl%ymax,upgd%ymax,change_char)
+			write(idf,'(A,F6.2,A)') 'ymax = ',upgd%ymax/pi*180.d0,' [rad] '//trim(change_char)
+			call change_judge(orgl%zmin,upgd%zmin,change_char)
+			write(idf,'(A,F6.2,A)') 'zmin = ',upgd%zmin/pi*180.d0,' [rad] '//trim(change_char)
+			call change_judge(orgl%zmax,upgd%zmax,change_char)
+			write(idf,'(A,F6.2,A)') 'zmax = ',upgd%zmax/pi*180.d0,' [rad] '//trim(change_char)
 		else
-			call change_judge(orgl%ymin,upgd%ymin,change)
-			write(idf,'(A,ES10.3,A)') 'ymin = ',upgd%ymin,' [cm] '//trim(change)
-			call change_judge(orgl%ymax,upgd%ymax,change)
-			write(idf,'(A,ES10.3,A)') 'ymax = ',upgd%ymax,' [cm] '//trim(change)
-			call change_judge(orgl%zmin,upgd%zmin,change)
-			write(idf,'(A,ES10.3,A)') 'zmin = ',upgd%zmin,' [cm] '//trim(change)
-			call change_judge(orgl%zmax,upgd%zmax,change)
-			write(idf,'(A,ES10.3,A)') 'zmax = ',upgd%zmax,' [cm] '//trim(change)
+			call change_judge(orgl%ymin,upgd%ymin,change_char)
+			write(idf,'(A,ES10.3,A)') 'ymin = ',upgd%ymin,' [cm] '//trim(change_char)
+			call change_judge(orgl%ymax,upgd%ymax,change_char)
+			write(idf,'(A,ES10.3,A)') 'ymax = ',upgd%ymax,' [cm] '//trim(change_char)
+			call change_judge(orgl%zmin,upgd%zmin,change_char)
+			write(idf,'(A,ES10.3,A)') 'zmin = ',upgd%zmin,' [cm] '//trim(change_char)
+			call change_judge(orgl%zmax,upgd%zmax,change_char)
+			write(idf,'(A,ES10.3,A)') 'zmax = ',upgd%zmax,' [cm] '//trim(change_char)
 		endif
 
-		call change_judge(orgl%ix00,upgd%ix00,change)
-		write(idf,'(A,I0,A)') 'nx0*ix0 = ',upgd%ix00 - 2*upgd%margin,trim(change)
-		call change_judge(orgl%jx00,upgd%jx00,change)
-		write(idf,'(A,I0,A)') 'ny0*jx0 = ',upgd%jx00 - 2*upgd%margin,trim(change)
-		call change_judge(orgl%kx00,upgd%kx00,change)
-		write(idf,'(A,I0,A)') 'nz0*kx0 = ',upgd%kx00 - 2*upgd%margin,trim(change)
+		call change_judge(orgl%ix00,upgd%ix00,change_char)
+		write(idf,'(A,I0,A)') 'nx0*ix0 = ',upgd%ix00 - 2*upgd%margin,trim(change_char)
+		call change_judge(orgl%jx00,upgd%jx00,change_char)
+		write(idf,'(A,I0,A)') 'ny0*jx0 = ',upgd%jx00 - 2*upgd%margin,trim(change_char)
+		call change_judge(orgl%kx00,upgd%kx00,change_char)
+		write(idf,'(A,I0,A)') 'nz0*kx0 = ',upgd%kx00 - 2*upgd%margin,trim(change_char)
 
-		call change_judge(orgl%ununiform_flag,upgd%ununiform_flag,change)
+		call change_judge(orgl%ununiform_flag,upgd%ununiform_flag,change_char)
 		if(upgd%ununiform_flag) then
-			write(idf,'(A)') 'ununiform_flag = .true.'//trim(change)
+			write(idf,'(A)') 'ununiform_flag = .true.'//trim(change_char)
 		else
-			write(idf,'(A)') 'ununiform_flag = .false.'//trim(change)
+			write(idf,'(A)') 'ununiform_flag = .false.'//trim(change_char)
 		endif
-		call change_judge(orgl%ix_ununi,upgd%ix_ununi,change)
-		write(idf,'(A,I0,A)') 'ix_ununi = ',upgd%ix_ununi,trim(change)
-		call change_judge(orgl%dx00,upgd%dx00,change)
-		write(idf,'(A,ES10.3,A)') 'dx00 = ',upgd%dx00,trim(change)
+		call change_judge(orgl%ix_ununi,upgd%ix_ununi,change_char)
+		write(idf,'(A,I0,A)') 'ix_ununi = ',upgd%ix_ununi,trim(change_char)
+		call change_judge(orgl%dx00,upgd%dx00,change_char)
+		write(idf,'(A,ES10.3,A)') 'dx00 = ',upgd%dx00,trim(change_char)
 		
 		close(idf)
 	endif
