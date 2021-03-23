@@ -22,7 +22,7 @@ R2D2のデータをアップグレードするためのルーチン
 計算領域に関わるパラメタのみ`upgrade_param_set.F90`で設定している.
 
 ```fortran
-	upgd%xmax = 0.94d0*rstar; upgd%xmin = 0.71d0*rstar
-	upgd%ymax = orgl%ymax; upgd%ymin = orgl%ymin
-	upgd%zmax = orgl%zmax; upgd%zmin = orgl%zmin
+  upgd%xmax = 0.94d0*rstar; upgd%xmin = 0.71d0*rstar
+  upgd%ymax = orgl%ymax; upgd%ymin = orgl%ymin
+  upgd%zmax = orgl%zmax; upgd%zmin = orgl%zmin
 ```
