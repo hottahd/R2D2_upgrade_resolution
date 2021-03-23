@@ -10,7 +10,7 @@ R2D2のデータをアップグレードするためのルーチン
 
 `namelist.in`で以下のパラメタを設定できる.
 
--　`caseid` : 元の`caseid`
+- `caseid` : 元の`caseid`
 - `caseid_out` : アップグレードしたものを保存する`caseid`
 - `c_nd_read` : 読み込む時間ステップ. 文字列. 最後のステップを読み込みたい時は`end_step`とする.
 - `ix0`, `jx0`, `kx0`: それぞれの方向のMPIスレッドの数
