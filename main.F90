@@ -41,7 +41,6 @@ program main
 	logical :: ltmp
 	character*20 :: server_name
 	character*11 :: change_char
-
 	
 	namelist /info/caseid,caseid_out,c_nd_read,ix0,jx0,kx0
 !===========================================================
@@ -330,7 +329,8 @@ program main
     & mpi_mode_rdonly, mpi_info_null, fh, merr)
 	call mpi_file_set_view(fh, disp, mpi_real8, global_orgl, "native", mpi_info_null, merr)
 	mmx = orgl%nxg*orgl%nyg*orgl%nzg*orgl%mtype
-	call mpi_file_read_all(fh, orgl%qq, mmx, mpi_real8, mstatus, merr)
+	!call mpi_file_read(fh, orgl%qq, mmx, mpi_real8, mstatus, merr)
+        call mpi_file_read_all(fh, orgl%qq, mmx, mpi_real8, mstatus, merr)
 	call mpi_file_close(fh, merr)
 
 	upgd%qq = 0.d0
@@ -380,7 +380,8 @@ program main
     & ior(mpi_mode_create, mpi_mode_wronly), mpi_info_null, fh, merr)
 	call mpi_file_set_view(fh, disp, mpi_real8, global_upgd, "native", mpi_info_null, merr)
 	mmx = upgd%nxg*upgd%nyg*upgd%nzg*upgd%mtype
-	call mpi_file_write_all(fh, upgd%qq, mmx, mpi_real8, mstatus, merr)
+	!call mpi_file_write(fh, upgd%qq, mmx, mpi_real8, mstatus, merr)
+        call mpi_file_write_all(fh, upgd%qq, mmx, mpi_real8, mstatus, merr)
 	call mpi_file_close(fh, merr)
 
 	if(myrank == 0) then

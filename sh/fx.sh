@@ -1,9 +1,9 @@
 ##PJM -L "rscgrp=fx-extra"
-##PJM -L "rscgrp=fx-middle"
-#PJM -L "rscgrp=fx-small"
-#PJM -L "node=8"
-#PJM --mpi "proc=32"
-#PJM -L "elapse=01:00:00"
+#PJM -L "rscgrp=fx-large"
+##PJM -L "rscgrp=fx-small"
+#PJM -L "node=128"
+#PJM --mpi "proc=512"
+#PJM -L "elapse=06:00:00"
 #PJM -j
 #PJM -o "log.txt"
 #PJM --step
