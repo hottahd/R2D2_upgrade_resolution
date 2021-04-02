@@ -1,4 +1,4 @@
-SERVER=FX
+SERVER=FUGAKU
 
 ###############################################
 ifeq ($(SERVER), LOCAL)
@@ -10,6 +10,12 @@ ifeq ($(SERVER), FX)
 FC = mpifrtpx
 FFLAGS = -Kfast,openmp,parallel -fPIC -Nalloc_assign
 endif
+###############################################
+ifeq ($(SERVER), FUGAKU)
+FC = mpifrtpx
+FFLAGS = -Cpp -Dfujitsu -Kfast,openmp,parallel -fPIC -Nalloc_assign -fPIC
+endif
+###############################################
 
 
 UPDATE = update

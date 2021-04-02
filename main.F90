@@ -8,6 +8,9 @@ program main
 		& ,ijkb2rank, merr, rstar
 	use change, only: change_judge
 	implicit none
+#ifdef fujitsu
+ 	include "mpif-ext.h"
+#endif 
 	include 'mpif.h'
 
 	integer :: i,j,k,m,ibt,jbt,kbt
@@ -40,8 +43,20 @@ program main
 	real(KIND(0.d0)) :: rtmp
 	logical :: ltmp
 	character*20 :: server_name
-	character*11 :: change_char
-	
+ character*11 :: change_char
+
+#ifdef fujitsu
+  integer :: fjmpi_dim
+  integer :: fjmpi_ix0,fjmpi_jx0,fjmpi_kx0
+  integer, dimension(3) :: fjmpi_coords
+  integer, parameter :: fjmpi_maxppn = 4
+  integer, dimension(fjmpi_maxppn) :: fjmpi_ranks
+  integer :: fjmpi_outppn
+  integer :: fjmpi_cmg_order
+  integer :: ibl,jbl,kbl
+  integer :: cmg_x = 1, cmg_y = 2, cmg_z = 2
+	integer, dimension(:), allocatable :: fjmpi_x,fjmpi_y,fjmpi_z	
+#endif	
 	namelist /info/caseid,caseid_out,c_nd_read,ix0,jx0,kx0
 !===========================================================
 	! initialize MPI
@@ -72,8 +87,12 @@ program main
 		stop
 	endif
 	
-	! check destination directory
-	inquire(file="../run/"//caseid_out,exist=exist)
+        ! check destination directory
+!        if(myrank == 0) then
+!           inquire(file="../run/"//caseid_out,exist=exist)
+!        endif
+!	call MPI_BCAST(exist,1,MPI_LOGICAL,0,MPI_COMM_WORLD,merr)
+ exist = .false.
 	if(exist) then
 		if(myrank == 0) then
 			write(*,*) "The destination directory "//caseid_out//" already exists. stop..."
@@ -107,6 +126,74 @@ program main
 
 !-----------------------------------------------------------
 
+#ifdef fujitsu
+
+allocate(fjmpi_x(0:npe-1))
+allocate(fjmpi_y(0:npe-1))
+allocate(fjmpi_z(0:npe-1))
+!----------------------------
+! Check tofu logical dimension 
+	call fjmpi_topology_get_dimension(fjmpi_dim,merr)
+	if(fjmpi_dim /= 3) then
+		if(myrank == 0) then
+	  		write(*,*) 'node specification is not 3D'
+	  		write(*,*) 'thus move to normal MPI coordinate'
+   		endif
+   	goto 1000
+	endif
+
+!----------------------------
+! Check tofu logical shape
+	call fjmpi_topology_get_shape(fjmpi_ix0,fjmpi_jx0,fjmpi_kx0,merr)
+	if((fjmpi_ix0*cmg_x /= ix0) .or. (fjmpi_jx0*cmg_y /= jx0) .or. (fjmpi_kx0*cmg_z /= kx0)) then
+		if(myrank == 0) then
+			write(*,*) '3D tofu coordinate is different from code intenstion'
+      write(*,*) 'thus move to normal MPI coordinate'
+    endif
+  	goto 1000
+	endif
+
+  !----------------------------
+  ! Check coordinate of myrank
+  call fjmpi_topology_get_coords(mpi_comm_world,myrank,fjmpi_logical,fjmpi_dim,fjmpi_coords,merr)
+
+  !----------------------------
+  ! Check 
+  call fjmpi_topology_get_ranks(mpi_comm_world,fjmpi_logical,fjmpi_coords,fjmpi_maxppn,fjmpi_outppn,fjmpi_ranks,merr)
+  do m = 1,4
+     if(myrank == fjmpi_ranks(m)) fjmpi_cmg_order = m - 1
+  enddo
+
+  kbl = fjmpi_cmg_order/cmg_x/cmg_y
+  jbl = (fjmpi_cmg_order - cmg_x*cmg_y*kbl)/cmg_x
+  ibl = fjmpi_cmg_order - jbl*cmg_x - kbl*cmg_x*cmg_y
+    
+  ib = fjmpi_coords(1)*cmg_x + ibl 
+  jb = fjmpi_coords(2)*cmg_y + jbl
+  kb = fjmpi_coords(3)*cmg_z + kbl
+
+  if(myrank == 0) then
+		write(*,*) 'We use Tofu oriented MPI topology'
+ endif
+
+ fjmpi_x(myrank) = ib
+ fjmpi_y(myrank) = jb
+ fjmpi_z(myrank) = kb
+
+ call mpi_allgather(fjmpi_x(myrank),1,mpi_integer,fjmpi_x(0),1,mpi_integer,mpi_comm_world,merr)
+ call mpi_allgather(fjmpi_y(myrank),1,mpi_integer,fjmpi_y(0),1,mpi_integer,mpi_comm_world,merr)
+ call mpi_allgather(fjmpi_z(myrank),1,mpi_integer,fjmpi_z(0),1,mpi_integer,mpi_comm_world,merr)
+
+allocate(xyz(0:npe-1,ndims))
+xyz(:,1) = fjmpi_x
+xyz(:,2) = fjmpi_y
+xyz(:,3) = fjmpi_z
+goto 2000
+! Fujitsu MPI finished
+#endif
+
+
+1000 continue ! Fujitsu MPI allocation failed
 	! allocate 3D MPI thread
 	dims(1) = ix0; dims(2) = jx0; dims(3) = kx0; periodic = .false.
 	call MPI_CART_CREATE(MPI_COMM_WORLD, ndims, dims, periodic, reorder, mpi_comm_world_cart, merr)
@@ -114,6 +201,8 @@ program main
 	do np = 0,npe-1
 		call MPI_CART_COORDS(mpi_comm_world_cart,np,ndims,xyz(np,:),merr)
 	enddo
+
+2000 continue ! MPI allocation finished
 
 	ib = xyz(myrank,1)
 	jb = xyz(myrank,2)
@@ -299,9 +388,9 @@ program main
 
 	allocate(upgd%qq(upgd%nxg,upgd%nyg,upgd%nzg,upgd%mtype))
 
-	call id_loc(orgl%x,upgd%x,orgl%nxg,upgd%nxg,imin,imax,iloc,dx0,dx1)
-	call id_loc(orgl%y,upgd%y,orgl%nyg,upgd%nyg,jmin,jmax,jloc,dy0,dy1)	
-	call id_loc(orgl%z,upgd%z,orgl%nzg,upgd%nzg,kmin,kmax,kloc,dz0,dz1)
+        call id_loc(orgl%x,upgd%x,orgl%nxg,upgd%nxg,imin,imax,iloc,dx0,dx1,upgd%margin)
+	call id_loc(orgl%y,upgd%y,orgl%nyg,upgd%nyg,jmin,jmax,jloc,dy0,dy1,upgd%margin)
+	call id_loc(orgl%z,upgd%z,orgl%nzg,upgd%nzg,kmin,kmax,kloc,dz0,dz1,upgd%margin)
 
 !-----------------------------------------------------------
 
@@ -334,12 +423,12 @@ program main
 	call mpi_file_close(fh, merr)
 
 	upgd%qq = 0.d0
-
+ 
         !$omp parallel do private(i,j,k,m)
 	do k = kmin,kmax
 	do j = jmin,jmax
 	do i = imin,imax
-	do m = 1,orgl%mtype
+    do m = 1,orgl%mtype
            upgd%qq(i,j,k,m) = ( &
           & + orgl%qq(iloc(i)+0,jloc(j)+0,kloc(k)+0,m)*dz1(k)*dy1(j)*dx1(i) &
           & + orgl%qq(iloc(i)+0,jloc(j)+0,kloc(k)+1,m)*dz0(k)*dy1(j)*dx1(i) &
@@ -397,6 +486,7 @@ program main
 		write(idf,'(A)') 'The initial condition of this run is upgraded data from the other directory.'
 		write(idf,'(A)') 'This file describes the original and the upgraded data'
 		write(idf,'(A)') '### Original data ###'
+		write(idf,*)
 		write(idf,*)
 		write(idf,'(A)') 'Server: '//trim(server_name)
 		write(idf,'(A)') 'Datadir: ../run/'//caseid//'/data'

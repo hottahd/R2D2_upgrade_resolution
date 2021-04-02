@@ -17,7 +17,8 @@ subroutine upgrade_param_set
 !==================================================================
   ! specify calculation domain in upgraded data
 !	upgd%xmax = 0.94d0*rstar; upgd%xmin = 0.71d0*rstar
-	upgd%xmax = rstar + 0.7d8 ; upgd%xmin = rstar - 5.444d8
+!	upgd%xmax = rstar + 0.7d8 ; upgd%xmin = rstar - 5.444d8
+	upgd%xmax = rstar + 0.7d8 ; upgd%xmin = 0.71d0*rstar
 	upgd%ymax = orgl%ymax; upgd%ymin = orgl%ymin
 	upgd%zmax = orgl%zmax; upgd%zmin = orgl%zmin
 !==================================================================
@@ -123,8 +124,8 @@ subroutine upgrade_param_set
   upgd%z00(1) = upgd%zmin + (0.5d0 - dble(upgd%margin))*dz_unif
   do k = 2, upgd%kx00
     upgd%z00(k) = upgd%z00(k - 1) + dz_unif
-  enddo
-
+ enddo
+ 
 	allocate(upgd%xstt(0:ix0-1))
 	allocate(upgd%xend(0:ix0-1))
 	allocate(upgd%xwdt(0:ix0-1))
