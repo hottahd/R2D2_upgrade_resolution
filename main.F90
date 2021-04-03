@@ -446,8 +446,10 @@ goto 2000
 	enddo
 
  
-	call bc_mpi(upgd%qq,upgd%nxg,upgd%nyg,upgd%nzg,upgd%mtype,upgd%margin,ib,jb,kb,ix0,jx0,kx0,ijkb2rank,merr)
- write(*,*) "### Transformtion finished ###"
+ call bc_mpi(upgd%qq,upgd%nxg,upgd%nyg,upgd%nzg,upgd%mtype,upgd%margin,ib,jb,kb,ix0,jx0,kx0,ijkb2rank,merr)
+ if(myrank == 0) then
+    write(*,*) "### Transformtion finished ###"
+    endif
 
 	gsize(1) = upgd%ix00
 	gsize(2) = upgd%jx00
