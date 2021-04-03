@@ -173,6 +173,7 @@ allocate(fjmpi_z(0:npe-1))
   kb = fjmpi_coords(3)*cmg_z + kbl
 
   if(myrank == 0) then
+     write(*,*) '#######'
 		write(*,*) 'We use Tofu oriented MPI topology'
  endif
 
@@ -444,7 +445,9 @@ goto 2000
 	enddo
 	enddo
 
+ 
 	call bc_mpi(upgd%qq,upgd%nxg,upgd%nyg,upgd%nzg,upgd%mtype,upgd%margin,ib,jb,kb,ix0,jx0,kx0,ijkb2rank,merr)
+ write(*,*) "### Transformtion finished ###"
 
 	gsize(1) = upgd%ix00
 	gsize(2) = upgd%jx00
@@ -473,7 +476,9 @@ goto 2000
         call mpi_file_write_all(fh, upgd%qq, mmx, mpi_real8, mstatus, merr)
 	call mpi_file_close(fh, merr)
 
-	if(myrank == 0) then
+ if(myrank == 0) then
+     write(*,*) "### Data store finished ###"
+   
 		open(idf,file='../run/'//caseid_out//'/data/time/mhd/t.dac.e',form='unformatted',access='stream')
 		write(idf) time
 		close(idf)
@@ -489,7 +494,7 @@ goto 2000
 		write(idf,*)
 		write(idf,*)
 		write(idf,'(A)') 'Server: '//trim(server_name)
-		write(idf,'(A)') 'Datadir: ../run/'//caseid//'/data'
+		write(idf,'(A)') 'Datadir: ../run/'//caseid//'/data/'
 		write(idf,'(A,i6)') 'Output step: ',nd
 		call change_judge(orgl%xmin,upgd%xmin,change_char)
 		write(idf,'(A,SP,ES10.3,A,SS,F5.3,A)') 'xmin = rsun',orgl%xmin-rstar,' or ',orgl%xmin/rstar,'rsun '//trim(change_char)

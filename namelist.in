@@ -1,8 +1,8 @@
  &info
-caseid     = "d024"  ! origin caseid
-caseid_out = "d028"  ! destination caseid
-c_nd_read = "end_step"
-!c_nd_read = "5"
+caseid     = "d018"  ! origin caseid
+caseid_out = "d029"  ! destination caseid
+!c_nd_read = "end_step"
+c_nd_read = "200"
 ix0 = 1 ! no. of MPI thread in x
 jx0 = 64 ! no. of MPI thread in y
 kx0 = 32 ! no. of MPI thread in z
