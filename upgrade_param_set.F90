@@ -19,6 +19,7 @@ subroutine upgrade_param_set
 !	upgd%xmax = 0.94d0*rstar; upgd%xmin = 0.71d0*rstar
 !	upgd%xmax = rstar + 0.7d8 ; upgd%xmin = rstar - 5.444d8
 	upgd%xmax = rstar + 0.7d8 ; upgd%xmin = 0.71d0*rstar
+!	upgd%xmax = 0.995d0*rstar ; upgd%xmin = 0.71d0*rstar
 	upgd%ymax = orgl%ymax; upgd%ymin = orgl%ymin
 	upgd%zmax = orgl%zmax; upgd%zmin = orgl%zmin
 !==================================================================

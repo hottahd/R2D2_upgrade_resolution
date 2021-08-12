@@ -1,17 +1,17 @@
- &info
-caseid     = "d018"  ! origin caseid
-caseid_out = "d029"  ! destination caseid
+&info
+caseid     = "d061"  ! origin caseid
+caseid_out = "d075"  ! destination caseid
 !c_nd_read = "end_step"
-c_nd_read = "200"
-ix0 = 1 ! no. of MPI thread in x
-jx0 = 64 ! no. of MPI thread in y
+c_nd_read = "30"
+ix0 = 2 ! no. of MPI thread in x
+jx0 = 32 ! no. of MPI thread in y
 kx0 = 32 ! no. of MPI thread in z
 /
 &upgrade
 ! calculation domain should be specified in upgrade_param_set.F90
-ix00 = 1024 ! upgrade grid point w/o margin
-jx00 = 4096 ! upgrade grid point w/o margin
-kx00 = 4096 ! upgrade grid point w/o margin
+ix00 = 2048 ! upgrade grid point w/o margin
+jx00 = 2048 ! upgrade grid point w/o margin
+kx00 = 2048 ! upgrade grid point w/o margin
 ununiform_flag = .true.
 ix_ununi = 96 ! number of grid in uniform layer
 dx00 = 48.d5  ! grid spacing in uniform layer

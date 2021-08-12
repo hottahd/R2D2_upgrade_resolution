@@ -1,10 +1,10 @@
 #!/bin/bash
 #PJM -N "upgrade"
-#PJM -L "node=1x32x16"
+#PJM -L "node=2x16x16"
 #PJM -L "rscunit=rscunit_ft01"
 ##PJM -L "rscgrp=small"
 #PJM -L "rscgrp=large"
-#PJM -L "elapse=5:00:00"
+#PJM -L "elapse=0:30:00"
 #PJM -o out.txt
 #PJM -e err.txt
 #PJM --mpi "max-proc-per-node=4"
